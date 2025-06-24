@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
+
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class FilmControllerTest {
         validFilm.setName("Valid Film");
         validFilm.setDescription("Normal description");
         validFilm.setReleaseDate(LocalDate.of(2000, 1, 1));
-        validFilm.setDuration(Duration.ofMinutes(120));
+        validFilm.setDuration(120);
         controller = new FilmController();
     }
 
@@ -70,7 +70,7 @@ public class FilmControllerTest {
 
     @Test
     void createFilmDurationIsNegativeShouldFail() throws ValidationException {
-        validFilm.setDuration(Duration.ofSeconds(-600));
+        validFilm.setDuration(-1);
         Exception exception = assertThrows(ValidationException.class, () -> controller.create(validFilm), "Продолжительность фильма должна быть положительным числом");
         assertEquals("Продолжительность фильма должна быть положительным числом", exception.getMessage());
     }
