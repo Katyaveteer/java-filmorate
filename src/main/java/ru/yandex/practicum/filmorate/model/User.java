@@ -15,14 +15,9 @@ import java.time.LocalDate;
 @EqualsAndHashCode(of = {"id"})
 public class User {
     Long id;
-    @NotBlank(message = "Электронная почта не может быть пустой")
-    @Email(message = "Электронная почта должна содержать символ @")
     String email;
-    @NotBlank(message = "Логин не может быть пустым")
     String login;
     String name;
-    @NotNull(message = "Дата рождения обязательна")
-    @PastOrPresent(message = "Дата рождения не может быть в будущем")
     LocalDate birthday;
 
 }
