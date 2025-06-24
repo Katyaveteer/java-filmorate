@@ -42,7 +42,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void createUserEmptyNameShouldLogin() {
+    void createUserEmptyNameShouldSetLoginAsName() {
         validUser.setName(" ");
         User user = controller.create(validUser);
         assertEquals(user.getLogin(), user.getName());
@@ -62,7 +62,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void updateFilmEmptyIdShouldFail() throws ValidationException {
+    void updateUserEmptyIdShouldFail() throws ValidationException {
         validUser.setId(null);
         Exception exception = assertThrows(ValidationException.class, () -> controller.update(validUser), "Id должен быть указан");
         assertEquals("Id должен быть указан", exception.getMessage());
