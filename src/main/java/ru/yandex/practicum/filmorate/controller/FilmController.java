@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
+
 import jakarta.validation.Valid;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -29,6 +31,7 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
 
+
         //проверка всех критериев
         //1. Название не может быть пустым
         if(film.getName() == null || film.getName().isBlank()) {
@@ -39,7 +42,9 @@ public class FilmController {
 
         //2. Максимальнаядлна описания - 200 символов
         if (film.getDescription().length() > 200) {
+ 
             String error = "Максимальная длина описания - 200 символов";
+
             log.error("Ошибка создания фильма: {}", error);
             throw new ValidationException(error);
         }
@@ -65,7 +70,9 @@ public class FilmController {
     }
 
     @PutMapping
+
     public Film update(@Valid @RequestBody Film newFilm) {
+
         if (newFilm.getId() == null) {
             String error = "Id должен быть указан";
             log.error("Ошибка обновления фильма: {}", error);
@@ -90,7 +97,9 @@ public class FilmController {
 
             return oldFilm;
         }
+
         String error = "Фильм с id = " + newFilm.getId() + " не найден";
+
         log.error("Ошибка обновления фильма: {}", error);
         throw new NotFoundException(error);
     }

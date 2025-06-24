@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
+controllers-films-users
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -27,6 +29,8 @@ public class Film {
     LocalDate releaseDate;
     @NotNull(message = "Продолжительность обязательна")
     @Positive(message = "Продолжительность должна быть положительной")
+
     Duration duration;
 
 }
+
