@@ -38,7 +38,7 @@ public class FilmController {
         }
 
         //2. Максимальнаядлна описания - 200 символов
-        if (film.getDescription().length() > 200) {
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
             String error = "Максимальная длина описания - 200 символов";
             log.error("Ошибка создания фильма: {}", error);
             throw new ValidationException(error);
@@ -60,6 +60,7 @@ public class FilmController {
         }
         film.setId(nextId++);
         films.put(film.getId(), film);
+        log.info("Создан новый фильм с ID: {}", film.getId());
         return film;
 
     }
@@ -71,28 +72,42 @@ public class FilmController {
             log.error("Ошибка обновления фильма: {}", error);
             throw new ValidationException(error);
         }
-        if (films.containsKey(newFilm.getId())) {
-            Film oldFilm = films.get(newFilm.getId());
-            if (newFilm.getName() != null) {
-                oldFilm.setName(newFilm.getName());
-            }
-
-            if (newFilm.getDescription().length() <= 200) {
-                oldFilm.setDescription(newFilm.getDescription());
-            }
-            if (newFilm.getDuration().isPositive()) {
-                oldFilm.setDuration(newFilm.getDuration());
-
-            }
-            if (newFilm.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
-                oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            }
-
-            return oldFilm;
+        if (!films.containsKey(newFilm.getId())) {
+            String error = "Фильм с id = " + newFilm.getId() + " не найден";
+            log.error("Ошибка обновления фильма: {}", error);
+            throw new NotFoundException(error);
         }
-        String error = "Фильм с id = " + newFilm.getId() + " не найден";
-        log.error("Ошибка обновления фильма: {}", error);
-        throw new NotFoundException(error);
+
+        Film oldFilm = films.get(newFilm.getId());
+
+        if (newFilm.getName() != null && !newFilm.getName().isBlank()) {
+            oldFilm.setName(newFilm.getName());
+        }
+
+        if (newFilm.getDescription() != null) {
+            if (newFilm.getDescription().length() > 200) {
+                String error = "Максимальная длина описания - 200 символов";
+                log.error("Ошибка обновления фильма: {}", error);
+                throw new ValidationException(error);
+            }
+            oldFilm.setDescription(newFilm.getDescription());
+        }
+
+        if (newFilm.getReleaseDate() != null) {
+            if (newFilm.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+                String error = "Дата релиза - не раньше 28 декабря 1895 года";
+                log.error("Ошибка обновления фильма: {}", error);
+                throw new ValidationException(error);
+            }
+            oldFilm.setReleaseDate(newFilm.getReleaseDate());
+        }
+
+        if (newFilm.getDuration() != null && newFilm.getDuration().isPositive()) {
+            oldFilm.setDuration(newFilm.getDuration());
+        }
+
+        log.info("Обновлен фильм с ID: {}", oldFilm.getId());
+        return oldFilm;
     }
 
 }

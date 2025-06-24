@@ -86,8 +86,8 @@ public class FilmControllerTest {
     void updateFilmNewNameShouldUpdate() {
         Film createFilm = controller.create(validFilm);
         createFilm.setName("Update name");
-        Film newFilm = controller.update(createFilm);
-        assertEquals("Update name", newFilm.getName());
+        controller.update(createFilm);
+        assertEquals("Update name", createFilm.getName());
 
     }
 }
