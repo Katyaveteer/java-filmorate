@@ -31,7 +31,7 @@ public class FilmController {
 
         //проверка всех критериев
         //1. Название не может быть пустым
-        if(film.getName() == null || film.getName().isBlank()) {
+        if (film.getName() == null || film.getName().isBlank()) {
             String error = "Название не может быть пустым";
             log.error("Ошибка создания фильма: {}", error);
             throw new ValidationException(error);
@@ -45,7 +45,7 @@ public class FilmController {
         }
 
         //3. Дата релиза - не раньше 28 декабря 1895 года
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER,28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
             String error = "Дата релиза - не раньше 28 декабря 1895 года";
             log.error("Ошибка создания фильма: {}", error);
             throw new ValidationException(error);
@@ -59,7 +59,7 @@ public class FilmController {
 
         }
         film.setId(nextId++);
-        films.put(film.getId(),film);
+        films.put(film.getId(), film);
         return film;
 
     }
@@ -84,7 +84,7 @@ public class FilmController {
                 oldFilm.setDuration(newFilm.getDuration());
 
             }
-            if (newFilm.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER,28))) {
+            if (newFilm.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
                 oldFilm.setReleaseDate(newFilm.getReleaseDate());
             }
 

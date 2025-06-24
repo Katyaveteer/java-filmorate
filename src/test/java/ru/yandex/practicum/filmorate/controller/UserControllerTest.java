@@ -23,7 +23,7 @@ public class UserControllerTest {
         validUser.setEmail("Email@Email");
         validUser.setLogin("Login");
         validUser.setName("Name");
-        validUser.setBirthday(LocalDate.of(1997, Month.FEBRUARY,8));
+        validUser.setBirthday(LocalDate.of(1997, Month.FEBRUARY, 8));
         controller = new UserController();
     }
 
@@ -45,7 +45,7 @@ public class UserControllerTest {
     void createUserEmptyNameShouldLogin() {
         validUser.setName(" ");
         User user = controller.create(validUser);
-        assertEquals(user.getLogin(),user.getName());
+        assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
@@ -70,11 +70,11 @@ public class UserControllerTest {
 
     @Test
     void updateUserEmailRepeatShouldFail() throws ValidationException {
-      User user = new User();
+        User user = new User();
         user.setEmail("Email2@Email");
         user.setLogin("Login2");
         user.setName("Name2");
-        user.setBirthday(LocalDate.of(1998, Month.FEBRUARY,10));
+        user.setBirthday(LocalDate.of(1998, Month.FEBRUARY, 10));
         controller.create(validUser);
         controller.create(user);
         user.setEmail(validUser.getEmail());

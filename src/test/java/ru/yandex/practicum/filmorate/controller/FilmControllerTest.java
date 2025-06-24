@@ -31,7 +31,7 @@ public class FilmControllerTest {
     @Test
     void createFilmEmptyNameShouldFail() throws ValidationException {
         validFilm.setName("");
-       Exception exception = assertThrows(ValidationException.class, () -> controller.create(validFilm), "Название не может быть пустым");
+        Exception exception = assertThrows(ValidationException.class, () -> controller.create(validFilm), "Название не может быть пустым");
         assertEquals("Название не может быть пустым", exception.getMessage());
     }
 
@@ -56,14 +56,14 @@ public class FilmControllerTest {
 
     @Test
     void createFilmData27_12_1895ShouldFail() throws ValidationException {
-        validFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER,27));
+        validFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 27));
         Exception exception = assertThrows(ValidationException.class, () -> controller.create(validFilm), "Дата релиза - не раньше 28 декабря 1895 года");
         assertEquals("Дата релиза - не раньше 28 декабря 1895 года", exception.getMessage());
     }
 
     @Test
     void createFilmData28_12_1895ShouldValid() throws ValidationException {
-        validFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER,28));
+        validFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 28));
         controller.create(validFilm);
     }
 
@@ -83,7 +83,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    void updateFilmNewNameShouldUpdate()  {
+    void updateFilmNewNameShouldUpdate() {
         Film createFilm = controller.create(validFilm);
         createFilm.setName("Update name");
         Film newFilm = controller.update(createFilm);
