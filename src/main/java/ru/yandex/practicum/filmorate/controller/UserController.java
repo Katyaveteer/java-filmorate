@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
+
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -26,11 +27,13 @@ public class UserController {
     }
 
     @PostMapping
+
     public User create(@Valid @RequestBody User user) {
 
         //проверка всех критериев
         //1. Электронная почта не может быть пустой и должна содержать символ @;
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+
             String error = "Электронная почта не может быть пустой и должна содержать символ @";
             log.error("Ошибка создания пользователя: {}", error);
             throw new ValidationException(error);
@@ -62,7 +65,9 @@ public class UserController {
     }
 
     @PutMapping
+
     public User update(@Valid @RequestBody User newUser) {
+
         if (newUser.getId() == null) {
             String error = "Id должен быть указан";
             log.error("Ошибка обновления пользователя: {}", error);

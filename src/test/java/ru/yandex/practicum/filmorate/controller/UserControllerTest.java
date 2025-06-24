@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -81,6 +82,7 @@ public class UserControllerTest {
         Exception exception = assertThrows(ValidationException.class, () -> controller.update(user), "Этот имейл уже используется");
         assertEquals("Этот имейл уже используется", exception.getMessage());
     }
+
 
 
 }
