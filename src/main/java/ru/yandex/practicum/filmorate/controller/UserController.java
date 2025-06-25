@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -26,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public User create(@RequestBody User user) {
 
         //проверка всех критериев
         //1. Электронная почта не может быть пустой и должна содержать символ @;
@@ -37,7 +36,7 @@ public class UserController {
         }
 
         //2. Логин не может быть пустым и содержать пробелы;
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
+        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             String error = "Логин не может быть пустым и содержать пробелы";
             log.error("Ошибка создания пользователя: {}", error);
             throw new ValidationException(error);
@@ -62,7 +61,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User newUser) {
+    public User update(@RequestBody User newUser) {
         if (newUser.getId() == null) {
             String error = "Id должен быть указан";
             log.error("Ошибка обновления пользователя: {}", error);
@@ -74,6 +73,8 @@ public class UserController {
             log.error("Ошибка обновления пользователя: {}", error);
             throw new NotFoundException(error);
         }
+
+        // Проверка уникальности email
         if (newUser.getEmail() != null && !newUser.getEmail().isEmpty()) {
             for (User user : users.values()) {
                 if (!user.getId().equals(newUser.getId()) &&
@@ -83,20 +84,40 @@ public class UserController {
                     throw new ValidationException(error);
                 }
             }
-            existingUser.setEmail(newUser.getEmail());
         }
-        if (newUser.getBirthday() != null && !newUser.getBirthday().isAfter(LocalDate.now())) {
-            existingUser.setBirthday(newUser.getBirthday());
-        }
-        if (newUser.getName() != null) {
-            existingUser.setName(newUser.getName());
-        } else {
-            existingUser.setName(newUser.getEmail());
+        // Проверка email
+        if (newUser.getEmail() == null || newUser.getEmail().isBlank() || !newUser.getEmail().contains("@")) {
+            String error = "Электронная почта не может быть пустой и должна содержать символ @";
+            log.error("Ошибка обновления пользователя: {}", error);
+            throw new ValidationException(error);
         }
 
-        if (newUser.getLogin() != null) {
-            existingUser.setLogin(newUser.getLogin());
+        // Проверка логина
+        if (newUser.getLogin() == null || newUser.getLogin().isBlank() || newUser.getLogin().contains(" ")) {
+            String error = "Логин не может быть пустым и содержать пробелы";
+            log.error("Ошибка обновления пользователя: {}", error);
+            throw new ValidationException(error);
         }
+
+        // Проверка даты рождения
+        if (newUser.getBirthday() == null || newUser.getBirthday().isAfter(LocalDate.now())) {
+            String error = "Дата рождения должна быть указана и не может быть в будущем";
+            log.error("Ошибка обновления пользователя: {}", error);
+            throw new ValidationException(error);
+        }
+        // Обновление полей
+        existingUser.setEmail(newUser.getEmail());
+        existingUser.setLogin(newUser.getLogin());
+        existingUser.setBirthday(newUser.getBirthday());
+
+        // Имя может быть пустым - тогда используем логин
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            existingUser.setName(newUser.getLogin());
+        } else {
+            existingUser.setName(newUser.getName());
+        }
+
+        log.info("Обновлен пользователь с ID: {}", existingUser.getId());
         return existingUser;
 
 

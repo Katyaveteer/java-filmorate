@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -27,7 +27,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
+    public Film create(@RequestBody Film film) {
 
         //проверка всех критериев
         //1. Название не может быть пустым
@@ -66,7 +66,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film newFilm) {
+    public Film update(@RequestBody Film newFilm) {
         if (newFilm.getId() == null) {
             String error = "Id должен быть указан";
             log.error("Ошибка обновления фильма: {}", error);
@@ -80,10 +80,16 @@ public class FilmController {
 
         Film oldFilm = films.get(newFilm.getId());
 
-        if (newFilm.getName() != null && !newFilm.getName().isBlank()) {
-            oldFilm.setName(newFilm.getName());
+        // Проверка названия
+        if (newFilm.getName() == null || newFilm.getName().isBlank()) {
+            String error = "Название не может быть пустым";
+            log.error("Ошибка обновления фильма: {}", error);
+            throw new ValidationException(error);
         }
+        oldFilm.setName(newFilm.getName());
 
+
+        // Проверка описания
         if (newFilm.getDescription() != null) {
             if (newFilm.getDescription().length() > 200) {
                 String error = "Максимальная длина описания - 200 символов";
@@ -92,7 +98,7 @@ public class FilmController {
             }
             oldFilm.setDescription(newFilm.getDescription());
         }
-
+        // Проверка даты релиза
         if (newFilm.getReleaseDate() != null) {
             if (newFilm.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
                 String error = "Дата релиза - не раньше 28 декабря 1895 года";
@@ -102,9 +108,13 @@ public class FilmController {
             oldFilm.setReleaseDate(newFilm.getReleaseDate());
         }
 
-        if (newFilm.getDuration() > 0) {
-            oldFilm.setDuration(newFilm.getDuration());
+        // Проверка продолжительности
+        if (newFilm.getDuration() <= 0) {
+            String error = "Продолжительность фильма должна быть положительным числом";
+            log.error("Ошибка обновления фильма: {}", error);
+            throw new ValidationException(error);
         }
+        oldFilm.setDuration(newFilm.getDuration());
 
         log.info("Обновлен фильм с ID: {}", oldFilm.getId());
         return oldFilm;

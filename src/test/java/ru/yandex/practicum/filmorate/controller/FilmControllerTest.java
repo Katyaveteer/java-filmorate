@@ -38,7 +38,7 @@ public class FilmControllerTest {
     @Test
     void createFilmDescription201ShouldFail() throws ValidationException {
         validFilm.setDescription(buildString(201));
-        Exception exception = assertThrows(ValidationException.class, () -> controller.create(validFilm), "Максимальная длна описания - 200 символов");
+        Exception exception = assertThrows(ValidationException.class, () -> controller.create(validFilm), "Максимальная длина описания - 200 символов");
         assertEquals("Максимальная длина описания - 200 символов", exception.getMessage());
     }
 
