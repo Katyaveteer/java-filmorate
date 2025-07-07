@@ -8,9 +8,9 @@ public interface UserStorage {
 
     User add(User user);
 
-   User update(User newUser);
+    User update(User newUser);
 
-   Collection<User> findAll();
+    Collection<User> findAll();
 
-   User getById(Long id);
+    User getById(Long id);
 }

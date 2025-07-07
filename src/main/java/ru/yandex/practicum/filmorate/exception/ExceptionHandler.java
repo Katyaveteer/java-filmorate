@@ -7,21 +7,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionHandler {
 
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValid(final ValidationException e) {
-      return new ErrorResponse(e.getMessage());
-  }
+        return new ErrorResponse(e.getMessage());
+    }
 
 
-      @ResponseStatus(HttpStatus.NOT_FOUND)
-      public ErrorResponse handleNotFound ( final NotFoundException e){
-          return new ErrorResponse(e.getMessage());
-      }
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(final NotFoundException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 
 
-      @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-      public ErrorResponse handleAll ( final Throwable e){
-          return new ErrorResponse("Произошла непредвиденная ошибка: " + e.getMessage());
-      }
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleAll(final Throwable e) {
+        return new ErrorResponse("Произошла непредвиденная ошибка: " + e.getMessage());
+    }
 
-  }
+}
