@@ -8,15 +8,14 @@ import ru.yandex.practicum.filmorate.model.User;
 
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, Set<Long>> friends = new HashMap<>();
     private long nextId = 1;
 
 
@@ -128,4 +127,53 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return users.get(id);
     }
+
+    @Override
+    public void delete(Long id) {
+        users.remove(id);
+        friends.remove(id);
+        // Удаляем пользователя из списков друзей других пользователей
+        friends.values().forEach(friendList -> friendList.remove(id));
+    }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+        if (!users.containsKey(userId) || !users.containsKey(friendId)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        friends.get(userId).add(friendId);
+        friends.get(friendId).add(userId);
+    }
+
+    @Override
+    public void removeFriend(Long userId, Long friendId) {
+        if (!users.containsKey(userId) || !users.containsKey(friendId)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        friends.get(userId).remove(friendId);
+        friends.get(friendId).remove(userId);
+    }
+
+    @Override
+    public List<User> getFriends(Long userId) {
+        if (!users.containsKey(userId)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        return friends.get(userId).stream()
+                .map(this::getById)
+                .toList();
+    }
+
+    @Override
+    public List<User> getCommonFriends(Long userId, Long otherId) {
+        if (!users.containsKey(userId) || !users.containsKey(otherId)) {
+            throw new NoSuchElementException("User not found");
+        }
+        Set<Long> userFriends = new HashSet<>(friends.get(userId));
+        userFriends.retainAll(friends.get(otherId));
+        return userFriends.stream()
+                .map(this::getById)
+                .toList();
+    }
+
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 
 import java.util.Collection;
@@ -20,6 +21,7 @@ public class UserController {
 
     private final UserService userService;
 
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -30,6 +32,11 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public User getById(@PathVariable Long id) {
+        return userService.getById(id);
+    }
+
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         return userService.create(user);
@@ -38,6 +45,11 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         return userService.update(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        userService.delete(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -56,7 +68,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    public List<User> getCommonFriends(
+            @PathVariable Long id, @PathVariable Long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 

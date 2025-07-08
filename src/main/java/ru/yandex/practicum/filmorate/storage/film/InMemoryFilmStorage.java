@@ -9,20 +9,19 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Set<Long>> likes = new HashMap<>();
     private long nextId = 1;
 
     @Override
     public Film add(Film film) {
-        //проверка всех критериев
+
         //1. Название не может быть пустым
         if (film.getName() == null || film.getName().isBlank()) {
             String error = "Название не может быть пустым";
@@ -119,11 +118,44 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public void delete(Long id) {
+        films.remove(id);
+        likes.remove(id);
+    }
+
+    @Override
     public Film getById(Long id) {
         if (!films.containsKey(id)) {
             throw new NotFoundException("Фильм не найден");
         }
         return films.get(id);
+    }
+    @Override
+    public void addLike(Long filmId, Long userId) {
+        if (!films.containsKey(filmId)) {
+            throw new NotFoundException("Фильм не найден");
+        }
+        likes.get(filmId).add(userId);
+    }
+
+    @Override
+    public void removeLike(Long filmId, Long userId) {
+        if (!films.containsKey(filmId)) {
+            throw new NotFoundException("Фильм не найден");
+
+        }
+        likes.get(filmId).remove(userId);
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        return films.values().stream()
+                .sorted((f1, f2) -> Integer.compare(
+                        likes.getOrDefault(f2.getId(), Collections.emptySet()).size(),
+                        likes.getOrDefault(f1.getId(), Collections.emptySet()).size()
+                ))
+                .limit(count)
+                .toList();
     }
 }
 

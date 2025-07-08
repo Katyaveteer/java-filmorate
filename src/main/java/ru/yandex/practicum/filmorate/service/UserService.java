@@ -24,11 +24,6 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-
-    public Collection<User> findAll() {
-        return userStorage.findAll();
-    }
-
     public User create(User user) {
         return userStorage.add(user);
     }
@@ -37,36 +32,33 @@ public class UserService {
         return userStorage.update(user);
     }
 
+    public Collection<User> findAll() {
+        return userStorage.findAll();
+    }
+
     public User getById(Long id) {
         return userStorage.getById(id);
     }
 
+    public void delete(Long id) {
+        userStorage.delete(id);
+    }
+
+
+
     public void addFriend(Long userId, Long friendId) {
-        User user = userStorage.getById(userId);
-        User friend = userStorage.getById(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+       userStorage.addFriend(userId,friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = userStorage.getById(userId);
-        User friend = userStorage.getById(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        userStorage.removeFriend(userId,friendId);
     }
 
     public List<User> getFriends(Long userId) {
-        return userStorage.getById(userId).getFriends().stream()
-                .map(userStorage::getById)
-                .collect(Collectors.toList());
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        Set<Long> friends1 = userStorage.getById(userId).getFriends();
-        Set<Long> friends2 = userStorage.getById(otherId).getFriends();
-        return friends1.stream()
-                .filter(friends2::contains)
-                .map(userStorage::getById)
-                .collect(Collectors.toList());
+        return userStorage.getCommonFriends(userId,otherId);
     }
 }
