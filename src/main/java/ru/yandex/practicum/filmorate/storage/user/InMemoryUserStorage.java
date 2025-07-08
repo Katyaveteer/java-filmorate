@@ -6,21 +6,21 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
-    private final Map<Long, Set<Long>> friends = new HashMap<>();
     private long nextId = 1;
 
 
     @Override
-    public User add(User user) {
+    public User create(User user) {
         //проверка всех критериев
         //1. Электронная почта не может быть пустой и должна содержать символ @;
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
@@ -128,52 +128,5 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(id);
     }
 
-    @Override
-    public void delete(Long id) {
-        users.remove(id);
-        friends.remove(id);
-        // Удаляем пользователя из списков друзей других пользователей
-        friends.values().forEach(friendList -> friendList.remove(id));
-    }
-
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-        if (!users.containsKey(userId) || !users.containsKey(friendId)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        friends.get(userId).add(friendId);
-        friends.get(friendId).add(userId);
-    }
-
-    @Override
-    public void removeFriend(Long userId, Long friendId) {
-        if (!users.containsKey(userId) || !users.containsKey(friendId)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        friends.get(userId).remove(friendId);
-        friends.get(friendId).remove(userId);
-    }
-
-    @Override
-    public List<User> getFriends(Long userId) {
-        if (!users.containsKey(userId)) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        return friends.get(userId).stream()
-                .map(this::getById)
-                .toList();
-    }
-
-    @Override
-    public List<User> getCommonFriends(Long userId, Long otherId) {
-        if (!users.containsKey(userId) || !users.containsKey(otherId)) {
-            throw new NoSuchElementException("User not found");
-        }
-        Set<Long> userFriends = new HashSet<>(friends.get(userId));
-        userFriends.retainAll(friends.get(otherId));
-        return userFriends.stream()
-                .map(this::getById)
-                .toList();
-    }
 
 }

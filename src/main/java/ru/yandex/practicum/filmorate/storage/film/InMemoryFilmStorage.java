@@ -9,7 +9,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -20,7 +23,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long nextId = 1;
 
     @Override
-    public Film add(Film film) {
+    public Film create(Film film) {
 
         //1. Название не может быть пустым
         if (film.getName() == null || film.getName().isBlank()) {
@@ -71,6 +74,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
 
         Film oldFilm = films.get(newFilm.getId());
+        if (oldFilm == null) {
+            String error = "Фильм с id = " + newFilm.getId() + " не найден";
+            log.error("Ошибка обновления фильма: {}", error);
+            throw new NotFoundException(error);
+        }
 
         // Проверка названия
         if (newFilm.getName() == null || newFilm.getName().isBlank()) {
@@ -117,11 +125,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values();
     }
 
-    @Override
-    public void delete(Long id) {
-        films.remove(id);
-        likes.remove(id);
-    }
 
     @Override
     public Film getById(Long id) {
@@ -131,32 +134,5 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
-    @Override
-    public void addLike(Long filmId, Long userId) {
-        if (!films.containsKey(filmId)) {
-            throw new NotFoundException("Фильм не найден");
-        }
-        likes.get(filmId).add(userId);
-    }
-
-    @Override
-    public void removeLike(Long filmId, Long userId) {
-        if (!films.containsKey(filmId)) {
-            throw new NotFoundException("Фильм не найден");
-
-        }
-        likes.get(filmId).remove(userId);
-    }
-
-    @Override
-    public List<Film> getPopularFilms(int count) {
-        return films.values().stream()
-                .sorted((f1, f2) -> Integer.compare(
-                        likes.getOrDefault(f2.getId(), Collections.emptySet()).size(),
-                        likes.getOrDefault(f1.getId(), Collections.emptySet()).size()
-                ))
-                .limit(count)
-                .toList();
-    }
 }
 
