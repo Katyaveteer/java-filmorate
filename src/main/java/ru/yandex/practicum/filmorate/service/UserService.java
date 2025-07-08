@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -44,18 +45,37 @@ public class UserService {
 
 
     public void addFriend(Long userId, Long friendId) {
-        userStorage.addFriend(userId, friendId);
+        try {
+            userStorage.addFriend(userId, friendId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        userStorage.removeFriend(userId, friendId);
+        try {
+            userStorage.removeFriend(userId, friendId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
     }
 
     public List<User> getFriends(Long userId) {
-        return userStorage.getFriends(userId);
+        try {
+            return userStorage.getFriends(userId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        return userStorage.getCommonFriends(userId, otherId);
+        try {
+            return userStorage.getCommonFriends(userId, otherId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
     }
 }
