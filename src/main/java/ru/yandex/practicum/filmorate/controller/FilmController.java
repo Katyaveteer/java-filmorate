@@ -29,6 +29,7 @@ public class FilmController {
     public Collection<Film> findAll() {
         return filmService.findAll();
     }
+
     @GetMapping("/{id}")
     public Film getById(@PathVariable Long id) {
         return filmService.getById(id);

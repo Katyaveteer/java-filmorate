@@ -8,8 +8,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 
 @Getter
@@ -45,13 +44,12 @@ public class UserService {
     }
 
 
-
     public void addFriend(Long userId, Long friendId) {
-       userStorage.addFriend(userId,friendId);
+        userStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        userStorage.removeFriend(userId,friendId);
+        userStorage.removeFriend(userId, friendId);
     }
 
     public List<User> getFriends(Long userId) {
@@ -59,6 +57,6 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        return userStorage.getCommonFriends(userId,otherId);
+        return userStorage.getCommonFriends(userId, otherId);
     }
 }

@@ -130,6 +130,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         return films.get(id);
     }
+
     @Override
     public void addLike(Long filmId, Long userId) {
         if (!films.containsKey(filmId)) {

@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 
-
 import java.util.Collection;
 import java.util.List;
 
@@ -35,20 +34,23 @@ public class FilmService {
     }
 
     public Collection<Film> findAll() {
-         return filmStorage.findAll();
+        return filmStorage.findAll();
     }
+
     public Film getById(Long id) {
         return filmStorage.getById(id);
     }
-    public void delete(Long id){
+
+    public void delete(Long id) {
         filmStorage.delete(id);
     }
+
     public void addLike(Long filmId, Long userId) {
-      filmStorage.addLike(filmId,userId);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        filmStorage.removeLike(filmId,userId);
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
