@@ -4,6 +4,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -52,8 +53,17 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        try {
+            userService.getById(id);
+            userService.getById(friendId);
 
-        userService.addFriend(id, friendId);
+            userService.addFriend(id, friendId);
+
+            log.info("Пользователь с id {} добавил в друзья пользователя с id {}", id, friendId);
+        } catch (NotFoundException e) {
+            log.error("Ошибка добавления в друзья: {}", e.getMessage());
+            throw e; // вернёт клиенту 404, если настроено через @ControllerAdvice
+        }
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")

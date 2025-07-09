@@ -30,12 +30,13 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-
+        log.info("Создание фильма: {}", film);
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@RequestBody Film newFilm) {
+        log.info("Обновление фильма: {}", newFilm);
         return filmService.update(newFilm);
     }
 

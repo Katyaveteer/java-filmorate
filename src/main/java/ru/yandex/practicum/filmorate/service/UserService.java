@@ -3,11 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -34,7 +38,13 @@ public class UserService {
     }
 
     public User getById(Long id) {
-        return userStorage.getById(id);
+        User user = userStorage.getById(id);
+        if (user == null) {
+            String error = "Пользователь с id " + id + " не найден";
+            log.error(error);
+            throw new NotFoundException(error);
+        }
+        return user;
     }
 
     public void addFriend(Long userId, Long friendId) {
@@ -70,13 +80,12 @@ public class UserService {
 
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        Set<Long> common = new HashSet<>(userStorage.getById(userId).getFriends());
-        common.retainAll(userStorage.getById(otherId).getFriends());
-        List<User> commonFriends = new ArrayList<>();
-        for (Long friendId : common) {
-            commonFriends.add(userStorage.getById(friendId));
-        }
-        return commonFriends;
+        Set<Long> common = new HashSet<>(getById(userId).getFriends());
+        common.retainAll(getById(otherId).getFriends());
+
+        return common.stream()
+                .map(this::getById)
+                .toList();
 
     }
 }
