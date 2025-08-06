@@ -3,9 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-
 import ru.yandex.practicum.filmorate.model.User;
-
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -13,9 +12,9 @@ import java.time.Month;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserControllerTest {
+public class UserStorageTest {
     private User validUser;
-    private UserController controller;
+    private InMemoryUserStorage storage;
 
     @BeforeEach
     void setUp() {
@@ -24,47 +23,47 @@ public class UserControllerTest {
         validUser.setLogin("Login");
         validUser.setName("Name");
         validUser.setBirthday(LocalDate.of(1997, Month.FEBRUARY, 8));
-        controller = new UserController();
+        storage = new InMemoryUserStorage();
     }
 
     @Test
     void createUserNotCharShouldFail() throws ValidationException {
         validUser.setEmail("aaa");
-        Exception exception = assertThrows(ValidationException.class, () -> controller.create(validUser), "Электронная почта не может быть пустой и должна содержать символ @");
+        Exception exception = assertThrows(ValidationException.class, () -> storage.create(validUser), "Электронная почта не может быть пустой и должна содержать символ @");
         assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
     }
 
     @Test
     void createUserEmptyLoginShouldFail() throws ValidationException {
         validUser.setLogin(" ");
-        Exception exception = assertThrows(ValidationException.class, () -> controller.create(validUser), "Логин не может быть пустым и содержать пробелы");
+        Exception exception = assertThrows(ValidationException.class, () -> storage.create(validUser), "Логин не может быть пустым и содержать пробелы");
         assertEquals("Логин не может быть пустым и содержать пробелы", exception.getMessage());
     }
 
     @Test
     void createUserEmptyNameShouldSetLoginAsName() {
         validUser.setName(" ");
-        User user = controller.create(validUser);
+        User user = storage.create(validUser);
         assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
     void createUserBirthdayFutureShouldFail() throws ValidationException {
         validUser.setBirthday(LocalDate.now().plusDays(1));
-        Exception exception = assertThrows(ValidationException.class, () -> controller.create(validUser), "Дата рождения не может быть в будущем");
+        Exception exception = assertThrows(ValidationException.class, () -> storage.create(validUser), "Дата рождения не может быть в будущем");
         assertEquals("Дата рождения не может быть в будущем", exception.getMessage());
     }
 
     @Test
     void createUserBirthdayPastShouldValid() throws ValidationException {
         validUser.setBirthday(LocalDate.now().minusDays(1));
-        controller.create(validUser);
+        storage.create(validUser);
     }
 
     @Test
     void updateUserEmptyIdShouldFail() throws ValidationException {
         validUser.setId(null);
-        Exception exception = assertThrows(ValidationException.class, () -> controller.update(validUser), "Id должен быть указан");
+        Exception exception = assertThrows(ValidationException.class, () -> storage.update(validUser), "Id должен быть указан");
         assertEquals("Id должен быть указан", exception.getMessage());
     }
 
@@ -75,10 +74,10 @@ public class UserControllerTest {
         user.setLogin("Login2");
         user.setName("Name2");
         user.setBirthday(LocalDate.of(1998, Month.FEBRUARY, 10));
-        controller.create(validUser);
-        controller.create(user);
+        storage.create(validUser);
+        storage.create(user);
         user.setEmail(validUser.getEmail());
-        Exception exception = assertThrows(ValidationException.class, () -> controller.update(user), "Этот имейл уже используется");
+        Exception exception = assertThrows(ValidationException.class, () -> storage.update(user), "Этот имейл уже используется");
         assertEquals("Этот имейл уже используется", exception.getMessage());
     }
 
