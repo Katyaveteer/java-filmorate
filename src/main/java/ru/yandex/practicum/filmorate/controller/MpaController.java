@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dao.MpaStorage;
 import ru.yandex.practicum.filmorate.dto.MpaRating;
 
-
 import java.util.List;
 
 @Slf4j
@@ -25,7 +24,6 @@ public class MpaController {
         log.info("Получение всего рейтинга");
         return mpaStorage.getAllMpa();
     }
-
 
 
     @GetMapping("/{id}")
