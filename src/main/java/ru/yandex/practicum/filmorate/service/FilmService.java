@@ -56,16 +56,16 @@ public class FilmService {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             filmStorage.updateFilmGenres(film);
         }
-        return getFilmById(createdFilm.getFilmId());
+        return getFilmById(createdFilm.getId());
     }
 
     public Film updateFilm(Film film) {
         validateFilm(film);
-        getFilmById(film.getFilmId()); // Проверка существования
+        getFilmById(film.getId()); // Проверка существования
         filmStorage.updateFilm(film)
-                .orElseThrow(() -> new NotFoundException("Фильм с id=" + film.getFilmId() + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Фильм с id=" + film.getId() + " не найден"));
         filmStorage.updateFilmGenres(film);
-        return getFilmById(film.getFilmId());
+        return getFilmById(film.getId());
     }
 
     public void deleteFilm(Long id) {
@@ -121,10 +121,10 @@ public class FilmService {
     }
 
     private void loadFilmData(Film film) {
-        film.setGenres(new HashSet<>(filmStorage.getFilmGenres(film.getFilmId())));
-        film.setLikes(new HashSet<>(filmStorage.getFilmLikes(film.getFilmId())));
+        film.setGenres(new HashSet<>(filmStorage.getFilmGenres(film.getId())));
+        film.setLikes(new HashSet<>(filmStorage.getFilmLikes(film.getId())));
         if (film.getMpa() != null) {
-            film.setMpa(mpaStorage.findMpaById(film.getMpa().getMpaId())
+            film.setMpa(mpaStorage.findMpaById(film.getMpa().getId())
                     .orElseThrow(() -> new NotFoundException("MPA рейтинг не найден")));
         }
     }
@@ -133,11 +133,11 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
             throw new ValidationException("Дата релиза не может быть раньше " + CINEMA_BIRTHDAY);
         }
-        if (film.getMpa() == null || film.getMpa().getMpaId() == null) {
-            throw new ValidationException("Фильм должен содержать рейтинг MPA");
+        if (film.getDescription().length() > 200) {
+            throw new ValidationException("Описание не может быть длиннее 200 символов");
         }
-        // Проверка существования MPA рейтинга
-        mpaStorage.findMpaById(film.getMpa().getMpaId())
-                .orElseThrow(() -> new NotFoundException("MPA рейтинг с id=" + film.getMpa().getMpaId() + " не найден"));
+        if (film.getDuration() <= 0) {
+            throw new ValidationException("Продолжительность должна быть положительной");
+        }
     }
 }

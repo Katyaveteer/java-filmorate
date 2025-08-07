@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class MpaRating {
-    private Integer mpaId;
+    private Integer id;
     private String name;
     private String description;
 }

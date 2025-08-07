@@ -45,7 +45,7 @@ public class UserDbStorage implements UserStorage {
             return ps;
         }, keyHolder);
 
-        user.setUserId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
     }
 
@@ -59,7 +59,7 @@ public class UserDbStorage implements UserStorage {
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
-                user.getUserId());
+                user.getId());
 
         if (updated > 0) {
             return Optional.of(user);
@@ -86,7 +86,7 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * FROM users";
         List<User> users = jdbcTemplate.query(sql, userMapper);
         users.forEach(user ->
-                user.setFriends(new HashSet<>(getUserFriends(user.getUserId()))));
+                user.setFriends(new HashSet<>(getUserFriends(user.getId()))));
         return users;
     }
 
@@ -98,8 +98,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        String sql = "MERGE INTO friends KEY(user_id, friend_id) VALUES (?, ?, ?)";
-        jdbcTemplate.update(sql, userId, friendId, false);
+        String checkSql = "SELECT COUNT(*) FROM friends WHERE user_id = ? AND friend_id = ?";
+        int count = jdbcTemplate.queryForObject(checkSql, Integer.class, userId, friendId);
+        if (count == 0) {
+            String insertSql = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
+            jdbcTemplate.update(insertSql, userId, friendId);
+        }
     }
 
     @Override

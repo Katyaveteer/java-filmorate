@@ -41,9 +41,9 @@ public class UserService {
 
     public User updateUser(User user) {
         validateUser(user);
-        getUserById(user.getUserId()); // Проверка существования
+        getUserById(user.getId()); // Проверка существования
         return userStorage.updateUser(user)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + user.getUserId() + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + user.getId() + " не найден"));
     }
 
     public void deleteUser(Long id) {
@@ -85,6 +85,9 @@ public class UserService {
     private void validateUser(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может содержать пробелы");
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
     }
 }

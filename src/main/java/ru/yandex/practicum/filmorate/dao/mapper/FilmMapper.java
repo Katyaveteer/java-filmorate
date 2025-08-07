@@ -13,18 +13,16 @@ public class FilmMapper implements RowMapper<Film> {
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Film film = new Film();
-        film.setFilmId(rs.getLong("film_id"));
+        film.setId(rs.getLong("id"));
         film.setTitle(rs.getString("title"));
         film.setDescription(rs.getString("description"));
         film.setReleaseDate(rs.getDate("release_date").toLocalDate());
         film.setDuration(rs.getInt("duration"));
 
         MpaRating mpa = new MpaRating();
-        mpa.setMpaId(rs.getInt("mpa_rating_id"));
-        if (rs.getMetaData().getColumnCount() > 6) { // Если есть данные из JOIN
-            mpa.setName(rs.getString("mpa_name"));
-            mpa.setDescription(rs.getString("mpa_description"));
-        }
+        mpa.setId(rs.getInt("mpa_rating_id"));
+        mpa.setName(rs.getString("mpa_name"));
+        mpa.setDescription(rs.getString("mpa_description"));
         film.setMpa(mpa);
 
         return film;
