@@ -146,19 +146,19 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    private List<Genre> getFilmGenres(Long filmId) {
+    public List<Genre> getFilmGenres(Long filmId) {
         String sql = "SELECT g.* FROM film_genres fg " +
                 "JOIN genres g ON fg.genre_id = g.genre_id " +
                 "WHERE fg.film_id = ?";
         return jdbcTemplate.query(sql, genreMapper, filmId);
     }
 
-    private List<Long> getFilmLikes(Long filmId) {
+    public List<Long> getFilmLikes(Long filmId) {
         String sql = "SELECT user_id FROM likes WHERE film_id = ?";
         return jdbcTemplate.queryForList(sql, Long.class, filmId);
     }
 
-    private void updateFilmGenres(Film film) {
+    public void updateFilmGenres(Film film) {
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", film.getFilmId());
 
         if (!film.getGenres().isEmpty()) {
