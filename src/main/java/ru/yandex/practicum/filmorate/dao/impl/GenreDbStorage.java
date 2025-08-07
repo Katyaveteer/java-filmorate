@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.dto.Genre;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GenreDbStorage implements GenreStorage {
@@ -28,7 +29,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public Genre findGenreById(long id) {
+    public Optional<Genre> findGenreById(long id) {
         String sql = "SELECT * FROM genres WHERE genre_id = ?";
         return jdbcTemplate.query(sql, genreMapper, id).stream().findFirst();
     }

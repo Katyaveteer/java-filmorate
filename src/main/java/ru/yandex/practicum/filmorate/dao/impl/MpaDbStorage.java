@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.dto.MpaRating;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class MpaDbStorage implements MpaStorage {
@@ -28,7 +29,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public MpaRating findMpaById(long id) {
+    public Optional<MpaRating> findMpaById(long id) {
         String sql = "SELECT * FROM mpa_ratings WHERE mpa_id = ?";
         return jdbcTemplate.query(sql, mpaMapper, id).stream().findFirst();
     }
