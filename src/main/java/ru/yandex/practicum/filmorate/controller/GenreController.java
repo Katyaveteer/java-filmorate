@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.dao.GenreStorage;
 import ru.yandex.practicum.filmorate.dto.Genre;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -26,7 +27,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable long id) {
+    public Optional<Genre> getGenreById(@PathVariable long id) {
         return genreStorage.findGenreById(id);
 
     }

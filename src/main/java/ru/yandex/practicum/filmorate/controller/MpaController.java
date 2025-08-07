@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.dao.MpaStorage;
 import ru.yandex.practicum.filmorate.dto.MpaRating;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -27,7 +28,7 @@ public class MpaController {
 
 
     @GetMapping("/{id}")
-    public MpaRating getMpaById(@PathVariable long id) {
+    public Optional<MpaRating> getMpaById(@PathVariable long id) {
         log.info("Получение  рейтинга по id");
         return mpaStorage.findMpaById(id);
 
