@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.dto.Film;
-import ru.yandex.practicum.filmorate.dto.Genre;
+import ru.yandex.practicum.filmorate.dto.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,17 +19,15 @@ public interface FilmStorage {
 
     void deleteFilm(Long id);
 
-    void addLike(Long filmId, Long userId);
+    void addLike(Long id, Long userId);
 
-    void removeLike(Long filmId, Long userId);
+    void removeLike(Long id, Long userId);
 
-    List<Film> getPopularFilms(int count);
+    List<User> getLikes(Long filmId);
 
-    List<Genre> getFilmGenres(Long filmId);
+    List<Film> getPopularFilms(Long count);
 
-    List<Long> getFilmLikes(Long filmId);
-
-    void updateFilmGenres(Film film);
+    boolean checkLikeOnFilm(Long filmId, Long userId);
 
 
 }

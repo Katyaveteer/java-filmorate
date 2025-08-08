@@ -56,7 +56,7 @@ class FilmoRateApplicationTests {
         User createdUser = userStorage.addUser(testUser);
 
         // Получаем пользователя по id
-        Optional<User> userOptional = userStorage.getUserById(createdUser.getUserId());
+        Optional<User> userOptional = userStorage.getUserById(createdUser.getId());
 
         // Проверяем
         assertThat(userOptional)
@@ -68,7 +68,7 @@ class FilmoRateApplicationTests {
 
     @Test
     public void testCreateAndGetFilm() {
-        MpaRating mpa = mpaStorage.findMpaById(1).orElseThrow();
+        MpaRating mpa = mpaStorage.getMpaById(1);
         Film film = new Film();
         film.setTitle("Test Film");
         film.setDescription("Test Description");
@@ -77,7 +77,7 @@ class FilmoRateApplicationTests {
         film.setMpa(mpa);
 
         Film createdFilm = filmStorage.addFilm(film);
-        Optional<Film> filmOptional = filmStorage.getFilmById(createdFilm.getFilmId());
+        Optional<Film> filmOptional = filmStorage.getFilmById(createdFilm.getId());
 
         assertThat(filmOptional)
                 .isPresent()
@@ -92,17 +92,17 @@ class FilmoRateApplicationTests {
         User user1 = createTestUser("user1@example.com", "user1");
         User user2 = createTestUser("user2@example.com", "user2");
 
-        userStorage.addFriend(user1.getUserId(), user2.getUserId());
+        userStorage.addFriends(user1.getId(), user2.getId());
 
-        List<User> friends = userStorage.getFriends(user1.getUserId());
+        List<User> friends = userStorage.getFriends(user1.getId());
 
         assertThat(friends).hasSize(1); // Ожидаем только одного друга
-        assertThat(friends.getFirst().getUserId()).isEqualTo(user2.getUserId()); // Проверяем ID друга
+        assertThat(friends.getFirst().getId()).isEqualTo(user2.getId()); // Проверяем ID друга
     }
 
     @Test
     public void testGetAllGenres() {
-        List<Genre> genres = genreStorage.getAllGenres();
+        List<Genre> genres = genreStorage.getAll();
 
         assertThat(genres).isNotEmpty();
         assertThat(genres).extracting("name").contains("Комедия", "Драма");

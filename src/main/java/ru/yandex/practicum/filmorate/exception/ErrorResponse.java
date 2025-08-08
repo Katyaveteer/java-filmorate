@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.exception;
 
 import lombok.Getter;
 
@@ -7,6 +7,7 @@ public class ErrorResponse {
     private final String message;
 
     public ErrorResponse(String message) {
+
         this.message = message;
     }
 

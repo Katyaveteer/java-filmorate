@@ -1,44 +1,56 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.GenreStorage;
-import ru.yandex.practicum.filmorate.dao.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.dto.Genre;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
+@AllArgsConstructor
+@Component
+@Primary
 public class GenreDbStorage implements GenreStorage {
-
     private final JdbcTemplate jdbcTemplate;
-    private final GenreMapper genreMapper;
 
-    @Autowired
-    public GenreDbStorage(JdbcTemplate jdbcTemplate, GenreMapper genreMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.genreMapper = genreMapper;
+    @Override
+    public List<Genre> getAll() {
+        return jdbcTemplate.query("SELECT * FROM genres", new DataClassRowMapper<>(Genre.class));
     }
 
     @Override
-    public List<Genre> getAllGenres() {
-        String sql = "SELECT * FROM genres ORDER BY genre_id";
-        return jdbcTemplate.query(sql, genreMapper);
+    public Genre getById(Long id) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT id, name FROM genres WHERE id = ?", new DataClassRowMapper<>(Genre.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Жанр с id = " + id + " не найден");
+        }
+
     }
 
     @Override
-    public Optional<Genre> findGenreById(long id) {
-        String sql = "SELECT * FROM genres WHERE genre_id = ?";
-        return jdbcTemplate.query(sql, genreMapper, id).stream().findFirst();
+    public List<Genre> getGenresOfFilm(Long id) {
+        try {
+            return jdbcTemplate.query("SELECT * FROM genres WHERE id IN (SELECT genre_id FROM films_genre WHERE film_id = ?);", new DataClassRowMapper<>(Genre.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+
     }
 
     @Override
-    public List<Genre> getGenresByFilmId(long filmId) {
-        String sql = "SELECT g.* FROM genres g JOIN film_genres fg ON g.id = fg.genre_id WHERE fg.film_id = ?";
-        return jdbcTemplate.query(sql, genreMapper, filmId);
+    public boolean checkGenresExists(List<Genre> genres) {
+        for (Genre genre : genres) {
+            if ((jdbcTemplate.query("SELECT * FROM genres WHERE id = ?", new DataClassRowMapper<>(Genre.class), genre.getId())).isEmpty()) {
+                throw new ValidationException("Жанр с id = " + genre.getId() + " отсутствует");
+            }
+        }
+        return true;
     }
-
-
 }

@@ -1,38 +1,44 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.MpaStorage;
-import ru.yandex.practicum.filmorate.dao.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.dto.MpaRating;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
+
+@AllArgsConstructor
+@Component
+@Primary
 public class MpaDbStorage implements MpaStorage {
-
     private final JdbcTemplate jdbcTemplate;
-    private final MpaMapper mpaMapper;
-
-    @Autowired
-    public MpaDbStorage(JdbcTemplate jdbcTemplate, MpaMapper mpaMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.mpaMapper = mpaMapper;
-    }
 
     @Override
     public List<MpaRating> getAllMpa() {
-        String sql = "SELECT * FROM mpa_ratings ORDER BY mpa_id";
-        return jdbcTemplate.query(sql, mpaMapper);
+        return jdbcTemplate.query("SELECT * FROM rating_mpa", new DataClassRowMapper<>(MpaRating.class));
     }
 
     @Override
-    public Optional<MpaRating> findMpaById(long id) {
-        String sql = "SELECT * FROM mpa_ratings WHERE mpa_id = ?";
-        return jdbcTemplate.query(sql, mpaMapper, id).stream().findFirst();
+    public MpaRating getMpaById(long id) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM rating_mpa WHERE id = ?", new DataClassRowMapper<>(MpaRating.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
-
+    @Override
+    public MpaRating getMpaOfFilm(Long id) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM rating_mpa WHERE id IN (SELECT rating_mpa_id FROM films WHERE id = ?);", new DataClassRowMapper<>(MpaRating.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 }
+

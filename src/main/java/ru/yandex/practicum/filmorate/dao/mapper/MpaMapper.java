@@ -14,7 +14,6 @@ public class MpaMapper implements RowMapper<MpaRating> {
         MpaRating mpa = new MpaRating();
         mpa.setId(rs.getInt("id"));
         mpa.setName(rs.getString("name"));
-        mpa.setDescription(rs.getString("description"));
         return mpa;
     }
 }
