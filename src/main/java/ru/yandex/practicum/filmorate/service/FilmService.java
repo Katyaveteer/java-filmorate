@@ -68,7 +68,7 @@ public class FilmService {
                 throw new NotFoundException("Пользователь отсутсвует");
             }
         }
-        filmStorage.checkLikeOnFilm(filmId, userId);
+        filmStorage.checkLikeExists(filmId, userId);
         filmStorage.addLike(filmId, userId);
     }
 
