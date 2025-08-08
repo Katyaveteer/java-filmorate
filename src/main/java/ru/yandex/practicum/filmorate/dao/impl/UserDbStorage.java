@@ -64,9 +64,9 @@ public class UserDbStorage implements UserStorage {
                 "u.LOGIN, " +
                 "u.NAME, " +
                 "u.BIRTHDAY, " +
-                "f.USER2_ID " +
+                "f.friend_id " +
                 "FROM USERS AS u " +
-                "LEFT JOIN FRIENDS AS f ON (f.USER1_ID  = u.ID)" +
+                "LEFT JOIN FRIENDS AS f ON (f.user_id  = u.ID)" +
                 "WHERE u.id = ?", userMapper, id);
         if (!users.isEmpty()) {
             return Optional.ofNullable(users.getFirst());
@@ -82,9 +82,9 @@ public class UserDbStorage implements UserStorage {
                 "u.LOGIN, " +
                 "u.NAME, " +
                 "u.BIRTHDAY, " +
-                "f.USER2_ID " +
+                "f.friend_id " +
                 "FROM USERS u " +
-                "LEFT JOIN FRIENDS f ON (f.USER1_ID  = u.ID)", userMapper);
+                "LEFT JOIN FRIENDS f ON (f.user_id  = u.ID)", userMapper);
         Set<User> uniqueUser = new TreeSet<>(Comparator.comparing(User::getId));
         uniqueUser.addAll(users);
         return new ArrayList<>(uniqueUser);
@@ -97,21 +97,21 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriends(Long userId, Long friendId) {
-        jdbcTemplate.update("INSERT INTO friends (user1_id, user2_id, status)values (?, ?, ?)", userId, friendId, true);
+        jdbcTemplate.update("INSERT INTO friends (user_id, friend_id, status)values (?, ?, ?)", userId, friendId, true);
     }
 
     @Override
     public void removeFriends(Long userId, Long friendId) {
-        jdbcTemplate.update("DELETE FROM friends WHERE user1_id = ? AND user2_id = ?", userId, friendId);
+        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", userId, friendId);
     }
 
     @Override
     public List<User> getFriends(Long id) {
-        return jdbcTemplate.query("SELECT * FROM users WHERE id IN (SELECT user2_id FROM friends WHERE user1_id = ? AND status = true)", new DataClassRowMapper<>(User.class), id);
+        return jdbcTemplate.query("SELECT * FROM users WHERE id IN (SELECT friend_id FROM friends WHERE user_id = ? AND status = true)", new DataClassRowMapper<>(User.class), id);
     }
 
     @Override
     public List<User> getCommonFriends(Long id, Long friendId) {
-        return jdbcTemplate.query("SELECT * FROM users WHERE id IN (SELECT user2_id FROM friends WHERE user1_id = ? AND status = true AND user2_id IN ( SELECT user2_id FROM friends WHERE user1_id = ? AND status = true))", new DataClassRowMapper<>(User.class), id, friendId);
+        return jdbcTemplate.query("SELECT * FROM users WHERE id IN (SELECT friend_id FROM friends WHERE user_id = ? AND status = true AND friend_id IN ( SELECT friend_id FROM friends WHERE user_id = ? AND status = true))", new DataClassRowMapper<>(User.class), id, friendId);
     }
 }

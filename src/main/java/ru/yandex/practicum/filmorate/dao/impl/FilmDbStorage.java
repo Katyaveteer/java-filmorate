@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.dto.Film;
 import ru.yandex.practicum.filmorate.dto.Genre;
 import ru.yandex.practicum.filmorate.dto.MpaRating;
 import ru.yandex.practicum.filmorate.dto.User;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.sql.Date;
@@ -37,7 +38,7 @@ public class FilmDbStorage implements FilmStorage {
 
     public Film addFilm(Film film) {
 
-        final String sql = "INSERT INTO films (name, release_date, description, duration, rating_mpa_id) " +
+        final String sql = "INSERT INTO films (name, release_date, description, duration, mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
@@ -180,11 +181,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean checkLikeOnFilm(Long filmId, Long userId) {
-        if ((jdbcTemplate.query("SELECT user_id FROM likes WHERE film_id = ? AND user_id = ?", new ColumnMapRowMapper(), filmId, userId)).contains(userId)) {
-            throw new ValidationException("Пользователь с id = " + userId + " уже поставил лайк");
+    public void checkLikeExists(Long filmId, Long userId) {
+        String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ? AND user_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId, userId);
+
+        if (count > 0) {
+            throw new AlreadyExistsException("Пользователь с id = " + userId + " уже поставил лайк фильму " + filmId);
         }
-        return true;
     }
 
 
