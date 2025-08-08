@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.dto.User;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,11 @@ public class FilmService {
     private final UserStorage userStorage;
 
     public Film addFilm(Film film) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            String error = "Дата релиза - не раньше 28 декабря 1895 года";
+            log.error("Ошибка создания фильма: {}", error);
+            throw new ValidationException(error);
+        }
         if (mpaStorage.getMpaById(film.getMpa().getId()) == null) {
             throw new NotFoundException("Указанный MPA  не найден");
         }

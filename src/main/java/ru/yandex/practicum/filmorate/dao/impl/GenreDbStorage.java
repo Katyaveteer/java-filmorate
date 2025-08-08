@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.GenreStorage;
 import ru.yandex.practicum.filmorate.dto.Genre;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.List;
 
@@ -36,19 +35,21 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getGenresOfFilm(Long id) {
-        try {
-            return jdbcTemplate.query("SELECT * FROM genres WHERE id IN (SELECT genre_id FROM films_genre WHERE film_id = ?);", new DataClassRowMapper<>(Genre.class), id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
-
+        return jdbcTemplate.query(
+                "SELECT g.id, g.name FROM genres g " +
+                        "JOIN films_genre fg ON g.id = fg.genre_id " +
+                        "WHERE fg.film_id = ? " +
+                        "ORDER BY g.id",
+                new DataClassRowMapper<>(Genre.class),
+                id
+        );
     }
 
     @Override
     public void checkGenresExists(List<Genre> genres) {
         for (Genre genre : genres) {
             if ((jdbcTemplate.query("SELECT * FROM genres WHERE id = ?", new DataClassRowMapper<>(Genre.class), genre.getId())).isEmpty()) {
-                throw new ValidationException("Жанр с id = " + genre.getId() + " отсутствует");
+                throw new NotFoundException("Жанр с id = " + genre.getId() + " отсутствует");
             }
         }
     }
