@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS friends (
               user_id BIGINT NOT NULL,
               friend_id BIGINT NOT NULL,
               status BOOL,
-              PRIMARY KEY (user1_id, user2_id)
+              PRIMARY KEY (user_id, friend_id)
               );
 
 ALTER TABLE friends ADD FOREIGN KEY (user_id) REFERENCES users (id);
