@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.User;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/users")
@@ -19,18 +19,28 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> getAll() {
+    public List<User> getAll() {
         return userService.getAllUsers();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
+        if (user.getId() != null) {
+            throw new ValidationException("Id не должен быть задан при создании пользователя.");
+        }
         return userService.createUser(user);
     }
 
     @PutMapping
-    public Optional<User> update(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+    public User update(@Valid @RequestBody User user) {
+        return userService.updateUser(user)
+                .orElseThrow(() -> new ValidationException("Не удалось обновить пользователя с id = " + user.getId()));
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        return userService.getUserById(id)
+                .orElseThrow(() -> new ValidationException("Пользователь не найден с id = " + id));
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -44,7 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getUserFriendsList(@PathVariable Long id) {
+    public List<User> getUserFriends(@PathVariable Long id) {
         return userService.getUsersFriends(id);
     }
 

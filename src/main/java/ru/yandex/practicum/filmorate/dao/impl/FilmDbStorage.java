@@ -44,7 +44,7 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, new String[]{"id"});
-            preparedStatement.setString(1, film.getTitle());
+            preparedStatement.setString(1, film.getName());
             preparedStatement.setDate(2, Date.valueOf(film.getReleaseDate())); // Используем Date.valueOf()
             preparedStatement.setString(3, film.getDescription());
             preparedStatement.setInt(4, film.getDuration());
@@ -87,7 +87,7 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.update(
                 sqlQuery,
-                film.getTitle(),
+                film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),

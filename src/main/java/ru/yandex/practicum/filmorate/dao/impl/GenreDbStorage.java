@@ -45,12 +45,11 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public boolean checkGenresExists(List<Genre> genres) {
+    public void checkGenresExists(List<Genre> genres) {
         for (Genre genre : genres) {
             if ((jdbcTemplate.query("SELECT * FROM genres WHERE id = ?", new DataClassRowMapper<>(Genre.class), genre.getId())).isEmpty()) {
                 throw new ValidationException("Жанр с id = " + genre.getId() + " отсутствует");
             }
         }
-        return true;
     }
 }

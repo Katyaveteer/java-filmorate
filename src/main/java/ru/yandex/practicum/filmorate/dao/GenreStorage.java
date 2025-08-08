@@ -14,6 +14,6 @@ public interface GenreStorage {
 
     List<Genre> getGenresOfFilm(Long id);
 
-    boolean checkGenresExists(List<Genre> genres);
+    void checkGenresExists(List<Genre> genres);
 
 }

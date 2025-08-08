@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.exception;
 import lombok.Getter;
 
 @Getter
-class ErrorResponse {
+public class ErrorResponse {
     private final String error;
     private final String description;
 

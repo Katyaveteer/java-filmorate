@@ -28,7 +28,7 @@ public class FilmService {
 
     public Film addFilm(Film film) {
         if (mpaStorage.getMpaById(film.getMpa().getId()) == null) {
-            throw new ValidationException("Указанный MPA  не найден");
+            throw new NotFoundException("Указанный MPA  не найден");
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             genreStorage.checkGenresExists(new ArrayList<>(film.getGenres()));
@@ -40,7 +40,7 @@ public class FilmService {
     public Optional<Film> updateFilm(Film film) {
         if (film.getId() == null) {
             log.info("Id должен быть указан");
-            throw new NullPointerException("Id должен быть указан");
+            throw new ValidationException("Id должен быть указан");
         }
         if (filmStorage.getFilmById(film.getId()).isPresent()) {
             return filmStorage.updateFilm(film);
@@ -50,8 +50,9 @@ public class FilmService {
     }
 
     public Optional<Film> getFilmById(Long filmId) {
-        if (filmStorage.getFilmById(filmId).isPresent()) {
-            return filmStorage.getFilmById(filmId);
+        Optional<Film> filmOpt = filmStorage.getFilmById(filmId);
+        if (filmOpt.isPresent()) {
+            return filmOpt;
         }
         throw new NotFoundException("Фильм с id = " + filmId + " не найден");
     }
