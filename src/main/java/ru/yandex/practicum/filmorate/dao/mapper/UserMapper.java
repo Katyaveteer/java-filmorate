@@ -31,9 +31,7 @@ public class UserMapper implements RowMapper<User> {
             userMap.put(userId, user);
         }
         if (rs.getLong("user2_id") != 0) {
-            if (!user.getFriends().contains(rs.getLong("user2_id"))) {
-                user.getFriends().add(rs.getLong("user2_id"));
-            }
+            user.getFriends().add(rs.getLong("user2_id"));
         }
         if (rs.isLast()) {
             userMap.clear();

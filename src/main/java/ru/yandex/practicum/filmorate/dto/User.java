@@ -16,6 +16,7 @@ import java.util.Set;
 @Setter
 @Data
 public class User {
+    @NotBlank
     private Long id;
     @Email
     private String email;

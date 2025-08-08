@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class UserService {
     }
 
     public Optional<User> updateUser(User user) {
+
         if (user.getId() == null) {
             log.info("Id пользователя должен быть указан");
             throw new NotFoundException("Id пользователя должен быть указан");
@@ -33,19 +35,21 @@ public class UserService {
         if (storage.getUserById(user.getId()).isPresent()) {
             log.info("Пользователь с id = {} обновлен", user.getId());
             return storage.updateUser(user);
+        } else {
+            throw new NotFoundException("Пользователь не найден с id = " + user.getId());
         }
-        throw new NotFoundException("Пользователь не найден с id = " + user.getId());
     }
 
-    public Optional<User> getUser(Long userId) {
-        if (storage.getUserById(userId).isPresent()) {
-            return storage.getUserById(userId);
+    public Optional<User> getUserById(Long id) {
+        if (storage.getUserById(id).isPresent()) {
+            return storage.getUserById(id);
         }
-        throw new NotFoundException("Пользователь не найден с id = " + userId);
+        throw new NotFoundException("Пользователь не найден с id = " + id);
 
     }
 
     public List<User> getAllUsers() {
+
         return storage.getAllUsers();
     }
 
