@@ -37,7 +37,7 @@ public class FilmDbStorage implements FilmStorage {
 
     public Film addFilm(Film film) {
 
-        final String sql = "INSERT INTO films (name, release_date, description, duration, mpa_id) " +
+        final String sql = "INSERT INTO films (name, release_date, description, duration, rating_mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
@@ -83,7 +83,7 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> updateFilm(Film film) throws ValidationException {
         String sqlQuery = "UPDATE films SET " +
                 "name = ?, description = ?, release_date = ?, duration = ?, " +
-                "rating_id = ? WHERE id = ?";
+                "rating_mpa_id = ? WHERE id = ?";
 
         jdbcTemplate.update(
                 sqlQuery,
@@ -112,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
                 "g.name AS genre_name " +
                 "FROM films AS f " +
                 "LEFT JOIN LIKES AS l ON (f.ID = l.FILM_ID) " +
-                "LEFT JOIN RATING_MPA AS mr ON (f.RATING_MPA_ID  = mr.ID) " +
+                "LEFT JOIN RATING_MPA AS mr ON (f.rating_mpa_id  = mr.ID) " +
                 "LEFT JOIN FILMS_GENRE AS fg ON (f.ID  = fg.film_id) " +
                 "LEFT JOIN GENRES AS g ON (fg.genre_id = g.ID)" +
                 "WHERE F.ID = ?;", filmMapper, id);
@@ -136,7 +136,7 @@ public class FilmDbStorage implements FilmStorage {
                 "g.name AS genre_name " +
                 "FROM films AS f " +
                 "LEFT JOIN LIKES AS l ON (f.ID = l.FILM_ID) " +
-                "LEFT JOIN RATING_MPA AS mr ON (f.RATING_MPA_ID  = mr.ID) " +
+                "LEFT JOIN RATING_MPA AS mr ON (f.rating_mpa_id  = mr.ID) " +
                 "LEFT JOIN FILMS_GENRE AS fg ON (f.ID  = fg.film_id) " +
                 "LEFT JOIN GENRES AS g ON (fg.genre_id = g.ID);", filmMapper);
         Set<Film> uniqueFilms = new TreeSet<>(Comparator.comparing(Film::getId));
