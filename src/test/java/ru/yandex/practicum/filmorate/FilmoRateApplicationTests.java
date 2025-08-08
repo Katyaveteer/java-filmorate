@@ -82,7 +82,7 @@ class FilmoRateApplicationTests {
         assertThat(filmOptional)
                 .isPresent()
                 .hasValueSatisfying(f ->
-                        assertThat(f).hasFieldOrPropertyWithValue("title", "Test Film")
+                        assertThat(f).hasFieldOrPropertyWithValue("name", "Test Film")
                 );
     }
 
