@@ -70,7 +70,7 @@ class FilmoRateApplicationTests {
     public void testCreateAndGetFilm() {
         MpaRating mpa = mpaStorage.getMpaById(1);
         Film film = new Film();
-        film.setTitle("Test Film");
+        film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
