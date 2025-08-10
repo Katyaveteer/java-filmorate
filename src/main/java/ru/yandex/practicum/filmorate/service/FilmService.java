@@ -43,8 +43,8 @@ public class FilmService {
     }
 
     public Optional<Film> updateFilm(Film film) {
-        validateFilm(film);
         validateFilmId(film.getId());
+        validateFilm(film);
         Optional<Film> updatedFilm = filmStorage.updateFilm(film);
         log.info("Фильм {} успешно обновлен", updatedFilm);
         return updatedFilm;

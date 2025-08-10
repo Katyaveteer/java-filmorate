@@ -35,7 +35,7 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         return service.updateFilm(film)
-                .orElseThrow(() -> new ValidationException("Не удалось обновить фильм с id = " + film.getId()));
+                .orElseThrow(() -> new NotFoundException("Не удалось обновить фильм с id = " + film.getId()));
     }
 
 

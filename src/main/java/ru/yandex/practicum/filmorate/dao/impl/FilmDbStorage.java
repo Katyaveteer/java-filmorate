@@ -17,7 +17,7 @@ import ru.yandex.practicum.filmorate.dto.Genre;
 import ru.yandex.practicum.filmorate.dto.MpaRating;
 import ru.yandex.practicum.filmorate.dto.User;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -92,7 +92,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> updateFilm(Film film) throws ValidationException {
+    public Optional<Film> updateFilm(Film film) {
+
+        if (getFilmById(film.getId()).isEmpty()) {
+            throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
+        }
+
         String sqlQuery = "UPDATE films SET " +
                 "name = ?, description = ?, release_date = ?, duration = ?, " +
                 "rating_mpa_id = ? WHERE id = ?";
