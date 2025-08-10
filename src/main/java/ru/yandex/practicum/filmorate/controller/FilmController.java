@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.Film;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -41,7 +42,7 @@ public class FilmController {
     @GetMapping("/{filmId}")
     public Film getFilm(@PathVariable Long filmId) {
         return service.getFilmById(filmId)
-                .orElseThrow(() -> new ValidationException("Фильм не найден с id = " + filmId));
+                .orElseThrow(() -> new NotFoundException("Фильм не найден с id = " + filmId));
     }
 
     @PutMapping("/{filmId}/like/{userId}")

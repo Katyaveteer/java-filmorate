@@ -44,7 +44,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, new String[]{"id"});
             preparedStatement.setString(1, film.getName());
-            preparedStatement.setDate(2, Date.valueOf(film.getReleaseDate())); // Используем Date.valueOf()
+            preparedStatement.setDate(2, Date.valueOf(film.getReleaseDate()));
             preparedStatement.setString(3, film.getDescription());
             preparedStatement.setInt(4, film.getDuration());
             preparedStatement.setInt(5, film.getMpa().getId());
@@ -133,7 +133,10 @@ public class FilmDbStorage implements FilmStorage {
                         f.setId(rs.getLong("id"));
                         f.setName(rs.getString("name"));
                         f.setDescription(rs.getString("description"));
-                        f.setReleaseDate(rs.getDate("release_date").toLocalDate());
+
+                        java.sql.Date sqlDate = rs.getDate("release_date");
+                        f.setReleaseDate(sqlDate.toLocalDate());
+
                         f.setDuration(rs.getInt("duration"));
                         f.setMpa(new MpaRating(rs.getInt("mpa_id"), rs.getString("mpa_name")));
                         return f;
@@ -218,13 +221,45 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(Long count) {
-        return jdbcTemplate.query(
-                "SELECT ID, NAME, cnt_like " +
-                        "FROM PUBLIC.FILMS f " +
-                        "LEFT JOIN (select FILM_ID, COUNT(user_id) cnt_like from likes group by FILM_ID) l ON (f.id = l.FILM_ID) " +
-                        "ORDER BY l.cnt_like DESC " +
-                        "LIMIT ?", new DataClassRowMapper<>(Film.class), count);
+        String sql =
+                "SELECT f.id, f.name, f.description, f.release_date, f.duration, " +
+                        "mr.id AS mpa_id, mr.name AS mpa_name, " +
+                        "COUNT(l.user_id) AS likes_count " +
+                        "FROM films f " +
+                        "LEFT JOIN rating_mpa mr ON f.rating_mpa_id = mr.id " +
+                        "LEFT JOIN likes l ON f.id = l.film_id " +
+                        "GROUP BY f.id, mr.id " +
+                        "ORDER BY likes_count DESC " +
+                        "LIMIT ?";
 
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Film film = new Film();
+            film.setId(rs.getLong("id"));
+            film.setName(rs.getString("name"));
+            film.setDescription(rs.getString("description"));
+
+            java.sql.Date sqlDate = rs.getDate("release_date");
+            film.setReleaseDate(sqlDate.toLocalDate());
+
+            film.setDuration(rs.getInt("duration"));
+
+            MpaRating mpa = new MpaRating(
+                    rs.getInt("mpa_id"),
+                    rs.getString("mpa_name")
+            );
+            film.setMpa(mpa);
+
+            List<Genre> genres = jdbcTemplate.query(
+                    "SELECT g.id, g.name FROM genres g " +
+                            "JOIN films_genre fg ON g.id = fg.genre_id " +
+                            "WHERE fg.film_id = ?",
+                    new DataClassRowMapper<>(Genre.class),
+                    film.getId()
+            );
+            film.setGenres(new LinkedHashSet<>(genres));
+
+            return film;
+        }, count);
     }
 
     @Override

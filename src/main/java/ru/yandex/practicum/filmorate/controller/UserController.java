@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.User;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -34,13 +35,13 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         return userService.updateUser(user)
-                .orElseThrow(() -> new ValidationException("Не удалось обновить пользователя с id = " + user.getId()));
+                .orElseThrow(() -> new NotFoundException("Не удалось обновить пользователя с id = " + user.getId()));
     }
 
     @GetMapping("/{id}")
     public User getUser(@PathVariable Long id) {
         return userService.getUserById(id)
-                .orElseThrow(() -> new ValidationException("Пользователь не найден с id = " + id));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден с id = " + id));
     }
 
     @PutMapping("/{id}/friends/{friendId}")

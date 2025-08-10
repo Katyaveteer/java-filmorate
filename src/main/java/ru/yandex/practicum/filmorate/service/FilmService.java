@@ -29,39 +29,32 @@ public class FilmService {
     private final UserStorage userStorage;
 
     public Film addFilm(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            String error = "Дата релиза - не раньше 28 декабря 1895 года";
-            log.error("Ошибка создания фильма: {}", error);
-            throw new ValidationException(error);
-        }
+        validateFilm(film);
+
         if (mpaStorage.getMpaById(film.getMpa().getId()) == null) {
             throw new NotFoundException("Указанный MPA  не найден");
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             genreStorage.checkGenresExists(new ArrayList<>(film.getGenres()));
         }
-        log.info("Фильм {} создан", film);
-        return filmStorage.addFilm(film);
+        Film createdFilm = filmStorage.addFilm(film);
+        log.info("Фильм {} успешно создан", createdFilm);
+        return createdFilm;
     }
 
     public Optional<Film> updateFilm(Film film) {
-        if (film.getId() == null) {
-            log.info("Id должен быть указан");
-            throw new ValidationException("Id должен быть указан");
-        }
-        if (filmStorage.getFilmById(film.getId()).isPresent()) {
-            return filmStorage.updateFilm(film);
-        }
-        log.info("Не найден фильм");
-        throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
+        validateFilm(film);
+        validateFilmId(film.getId());
+        Optional<Film> updatedFilm = filmStorage.updateFilm(film);
+        log.info("Фильм {} успешно обновлен", updatedFilm);
+        return updatedFilm;
+
     }
 
     public Optional<Film> getFilmById(Long filmId) {
-        Optional<Film> filmOpt = filmStorage.getFilmById(filmId);
-        if (filmOpt.isPresent()) {
-            return filmOpt;
-        }
-        throw new NotFoundException("Фильм с id = " + filmId + " не найден");
+        validateFilmId(filmId);
+        return Optional.ofNullable(filmStorage.getFilmById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм с id = " + filmId + " не найден")));
     }
 
     public List<Film> getAllFilms() {
@@ -69,42 +62,64 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        if (filmStorage.getFilmById(filmId).isEmpty()) {
-            throw new NotFoundException("Фильм отсуствует");
-        } else {
-            if (userStorage.getUserById(userId).isEmpty()) {
-                throw new NotFoundException("Пользователь отсутсвует");
-            }
+        validateFilmId(filmId);
+        if (userStorage.getUserById(userId).isEmpty()) {
+            throw new NotFoundException("Пользователь отсутсвует");
         }
+
         filmStorage.checkLikeExists(filmId, userId);
         filmStorage.addLike(filmId, userId);
+        log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        if (filmStorage.getFilmById(filmId).isEmpty()) {
-            throw new NotFoundException("Фильм с таким ID не найден!");
-        } else if (userStorage.getUserById(userId).isEmpty()) {
+        validateFilmId(filmId);
+        if (userStorage.getUserById(userId).isEmpty()) {
             throw new NotFoundException("Пользователь с таким ID не найден!");
         }
         filmStorage.removeLike(filmId, userId);
+        log.info("Пользователь {} удалил лайк у фильма {}", userId, filmId);
     }
 
     public List<Film> getPopularFilms(Long count) {
         return filmStorage.getPopularFilms(count);
     }
 
-    public void deleteFilm(Long id) {
-        if (filmStorage.getFilmById(id).isEmpty()) {
-            throw new NotFoundException("Фильм с таким ID не найден!");
-        }
-        filmStorage.deleteFilm(id);
+    public void deleteFilm(Long filmId) {
+        validateFilmId(filmId);
+        filmStorage.deleteFilm(filmId);
     }
 
     public List<User> getLikes(Long filmId) {
-        if (filmStorage.getFilmById(filmId).isEmpty()) {
-            throw new NotFoundException("Фильм с таким ID не найден!");
-        }
+        validateFilmId(filmId);
         return new ArrayList<>(filmStorage.getLikes(filmId));
+    }
+
+    private void validateFilm(Film film) {
+        if (film == null) {
+            throw new ValidationException("Фильм не может быть null");
+        }
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ValidationException("Название фильма не может быть пустым");
+        }
+        if (film.getReleaseDate() == null) {
+            throw new ValidationException("Дата релиза обязательна");
+        }
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            throw new ValidationException("Дата релиза - не раньше 28 декабря 1895 года");
+        }
+        if (film.getDuration() <= 0) {
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
+        }
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new ValidationException("Описание не может превышать 200 символов");
+        }
+    }
+
+    private void validateFilmId(Long filmId) {
+        if (filmId == null || filmId <= 0) {
+            throw new ValidationException("Некорректный ID фильма");
+        }
     }
 
 }
