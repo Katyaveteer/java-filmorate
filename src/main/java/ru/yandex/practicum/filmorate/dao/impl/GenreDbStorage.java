@@ -1,0 +1,56 @@
+package ru.yandex.practicum.filmorate.dao.impl;
+
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.DataClassRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.GenreStorage;
+import ru.yandex.practicum.filmorate.dto.Genre;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+
+import java.util.List;
+
+@AllArgsConstructor
+@Component
+@Primary
+public class GenreDbStorage implements GenreStorage {
+    private final JdbcTemplate jdbcTemplate;
+
+    @Override
+    public List<Genre> getAll() {
+        return jdbcTemplate.query("SELECT * FROM genres", new DataClassRowMapper<>(Genre.class));
+    }
+
+    @Override
+    public Genre getById(Long id) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT id, name FROM genres WHERE id = ?", new DataClassRowMapper<>(Genre.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Жанр с id = " + id + " не найден");
+        }
+
+    }
+
+    @Override
+    public List<Genre> getGenresOfFilm(Long id) {
+        return jdbcTemplate.query(
+                "SELECT g.id, g.name FROM genres g " +
+                        "JOIN films_genre fg ON g.id = fg.genre_id " +
+                        "WHERE fg.film_id = ? " +
+                        "ORDER BY g.id",
+                new DataClassRowMapper<>(Genre.class),
+                id
+        );
+    }
+
+    @Override
+    public void checkGenresExists(List<Genre> genres) {
+        for (Genre genre : genres) {
+            if ((jdbcTemplate.query("SELECT * FROM genres WHERE id = ?", new DataClassRowMapper<>(Genre.class), genre.getId())).isEmpty()) {
+                throw new NotFoundException("Жанр с id = " + genre.getId() + " отсутствует");
+            }
+        }
+    }
+}
